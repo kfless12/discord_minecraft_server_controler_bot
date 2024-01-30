@@ -4,7 +4,6 @@ from decouple import config
 
 
 TOKEN = config("DIGITALOCEAN_TOKEN")
-ID = config("DROPLET_ID")
 
 
 class DropletController:
@@ -12,6 +11,11 @@ class DropletController:
         self.client = Client(TOKEN)
 
     def power_cycle_droplet(self):
-        req = {"type": "enable_backups"}
-        self.client.droplet_actions.post(droplet_id=ID, body=req)
+        resp = self.client.droplets.list()
+        droplet_id = resp.get("droplets")[0].get("id")
+        req = {"type": "reboot"}
+        self.client.droplet_actions.post(droplet_id=droplet_id, body=req)
         return
+
+    def list_all_droplets(self):
+        return self.client.droplets.list()
